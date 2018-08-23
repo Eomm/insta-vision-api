@@ -26,7 +26,9 @@
   "dependencies": {
     "@google-cloud/vision": "^0.21.0",
     "dotenv": "^6.0.0",
-    "fastify": "^1.10.0"
+    "fastify": "^1.10.0",
+    "file-utils-easy": "0.0.3",
+    "instagram-profile-picture": "^1.0.5"
   },
   "devDependencies": {
     "@types/jest": "^23.1.0",

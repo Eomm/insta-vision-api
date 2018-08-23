@@ -6,6 +6,7 @@ const fastify = require('fastify')({ logger: true });
 
 fastify.register(require('./api/ping'));
 fastify.register(require('./api/vision'));
+fastify.register(require('./api/profile-picture'));
 
 
 fastify.listen(process.env.PORT, '0.0.0.0', (err, address) => {

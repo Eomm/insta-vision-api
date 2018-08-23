@@ -1,5 +1,7 @@
 'use strict';
 
+const ipp = require('instagram-profile-picture');
+const fue = require('file-utils-easy');
 const vision = require('@google-cloud/vision');
 
 const credentials = {
@@ -13,7 +15,7 @@ let callsNum = 0;
 
 
 async function visionApi(fastify, options) {
-  fastify.get('/vision', async (request, reply) => {
+  fastify.get('/vision/:profile', async (request, reply) => {
     callsNum += 1;
 
     if (callsNum === process.env.MAX_CALL_PER_START) {
@@ -21,19 +23,14 @@ async function visionApi(fastify, options) {
       return;
     }
 
-    client
-      .labelDetection('./resources/test01.png')
-      // .safeSearchDetection('./resources/test01.png')
-      // .webDetection('./resources/test01.png')
+    ipp(request.params.profile)
+      .then(profileUrl => fue.saveUrlToFile(profileUrl, `./resources/${request.params.profile}.jpg`))
+      .then(filePath => client.safeSearchDetection(filePath))
+      // .labelDetection(filePath)
+      // .webDetection(filePath)
       .then((results) => {
         console.log('Raw result', JSON.stringify(results));
-
-        const labels = results[0].labelAnnotations;
-
-        console.log('Labels:');
-        labels.forEach(label => console.log(label.description));
-
-        reply.send(results);
+        reply.send(JSON.stringify(results, null, 2));
       })
       .catch((err) => {
         console.error('ERROR:', err);
