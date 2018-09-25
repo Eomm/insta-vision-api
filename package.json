@@ -8,7 +8,9 @@
     "test": "jest --coverage",
     "coveralls": "cat ./coverage/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
     "update-modules": "npm update && npm prune --production",
-    "coverage": "npm test && npm run coveralls"
+    "coverage": "npm test && npm run coveralls",
+    "deploy": "claudia create --handler server.listen --deploy-proxy-api --region eu-central-1",
+    "update": "claudia update"
   },
   "keywords": [
     "insta",
@@ -32,12 +34,13 @@
   },
   "devDependencies": {
     "@types/jest": "^23.1.0",
+    "claudia": "^5.1.2",
+    "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-jest": "^21.17.0",
-    "jest": "^22.4.4",
-    "coveralls": "^3.0.1"
+    "jest": "^22.4.4"
   },
   "jest": {
     "testEnvironment": "node"

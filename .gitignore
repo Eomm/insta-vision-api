@@ -14,6 +14,8 @@ yarn-error.log*
 
 *auth*.json
 
+credentials
+
 .coveralls.yml
 
 .env
