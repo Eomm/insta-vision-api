@@ -1,5 +1,6 @@
 .DS_Store
 node_modules/
+jspm_packages
 /dist/
 npm-debug.log*
 yarn-debug.log*
@@ -12,7 +13,14 @@ yarn-error.log*
 *.njsproj
 *.sln
 
+# Google
 *auth*.json
+
+# AWS
+credentials
+
+# Serverless directories
+.serverless
 
 .coveralls.yml
 

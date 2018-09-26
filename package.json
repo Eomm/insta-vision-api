@@ -1,5 +1,5 @@
 {
-  "name": "insta-vision-bot",
+  "name": "insta-vision-api",
   "version": "0.0.1",
   "description": "Analyze images from instagram",
   "main": "server.js",
@@ -8,7 +8,10 @@
     "test": "jest --coverage",
     "coveralls": "cat ./coverage/lcov.info | node ./node_modules/coveralls/bin/coveralls.js",
     "update-modules": "npm update && npm prune --production",
-    "coverage": "npm test && npm run coveralls"
+    "deploy": "serverless deploy -v",
+    "deploy-function": "serverless deploy function -f profileUrl",
+    "coverage": "npm test && npm run coveralls",
+    "config-credentials": "serverless config credentials --provider aws --key yyy --secret xxx"
   },
   "keywords": [
     "insta",
@@ -32,12 +35,14 @@
   },
   "devDependencies": {
     "@types/jest": "^23.1.0",
+    "coveralls": "^3.0.1",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-jest": "^21.17.0",
     "jest": "^22.4.4",
-    "coveralls": "^3.0.1"
+    "serverless": "^1.32.0",
+    "serverless-plugin-browserify": "^1.1.3"
   },
   "jest": {
     "testEnvironment": "node"
