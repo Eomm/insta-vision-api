@@ -13,6 +13,9 @@
 
 service: insta-vision-api # NOTE: update this with your service name
 
+custom:
+  storageBucket: ${self:service}-profile-pictures-bucket
+
 package:
   individually: true
   include: # workaround for browserify
@@ -30,6 +33,12 @@ provider:
   runtime: nodejs8.10
   stage: dev
   region: eu-central-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+      Resource: "arn:aws:s3:::insta-vision-api-profile-pictures-bucket"
+      #arn:aws:s3:::${self:custom.bucket}/*
 
 # you can add statements to the Lambda function's IAM Role here
 #  iamRoleStatements:
@@ -62,6 +71,7 @@ provider:
 
 functions:
   profileUrl:
+    description: get the URL to the profile picture of a given Instagram profile
     handler: lambda/profile-url.handler
     events:
       - http:
@@ -71,6 +81,11 @@ functions:
             parameters:
               paths:
                 profile: true
+  downloadUrl:
+    description: download an open HTTP GET URL to a file
+    handler: lambda/save-url.handler
+    environment:
+      BUCKET: ${self:custom.storageBucket}
 
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
@@ -106,12 +121,12 @@ functions:
 #      variable2: value2
 
 # you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
+resources:
+  Resources:
+    S3BucketPictures:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.storageBucket}
 #  Outputs:
 #     NewOutput:
 #       Description: "Description for the output"
