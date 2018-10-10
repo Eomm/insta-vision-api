@@ -37,7 +37,7 @@ provider:
     - Effect: Allow
       Action:
         - s3:PutObject
-      Resource: "arn:aws:s3:::insta-vision-api-profile-pictures-bucket"
+      Resource: "arn:aws:s3:::insta-vision-api-profile-pictures-bucket/*"
       #arn:aws:s3:::${self:custom.bucket}/*
 
 # you can add statements to the Lambda function's IAM Role here
