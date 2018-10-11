@@ -28,7 +28,8 @@
     "dotenv": "^6.0.0",
     "fastify": "^1.10.0",
     "file-utils-easy": "0.0.3",
-    "instagram-profile-picture": "^1.0.5"
+    "instagram-profile-picture": "^1.0.5",
+    "puppeteer": "^1.9.0"
   },
   "devDependencies": {
     "@types/jest": "^23.1.0",
