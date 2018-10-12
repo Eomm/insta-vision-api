@@ -6,9 +6,9 @@ function wait(sec) {
   return new Promise(resolve => setTimeout(resolve, sec * 1000));
 }
 
-async function followed(user, password) {
+async function followed(user, password, searchUser = user) {
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: ['--disable-gpu', '--no-sandbox', '--window-size=1024x768'],
     defaultViewport: { width: 1024, height: 768 },
   });
@@ -35,10 +35,9 @@ async function followed(user, password) {
   // console.log('html', html);
   // console.log('cookies', cookies);
 
-  await wait(8);
-
-  await page.goto(`https://www.instagram.com/${user}/`);
-  await wait(3);
+  await wait(2);
+  await page.goto(`https://www.instagram.com/${searchUser}/`);
+  await wait(4);
   await page.waitForSelector('main > div > header > section > ul > li:nth-child(3) > a');
   const openFollowed = await page.$('main > div > header > section > ul > li:nth-child(3) > a');
   await openFollowed.click();
@@ -48,30 +47,34 @@ async function followed(user, password) {
 
   const scrollDown = (selector) => {
     const scrollableSection = document.querySelector(selector);
-    scrollableSection.scrollTop = scrollableSection.offsetHeight;
+    scrollableSection.scrollTop = scrollableSection.scrollHeight;
   };
 
-  // TODO scrool
-  await wait(2);
-  await page.evaluate(scrollDown, 'body > div:nth-child(15) > div > div > div.isgrP');
-  await wait(2);
-  await page.evaluate(scrollDown, 'body > div:nth-child(15) > div > div > div.isgrP');
+  const profilesSelector = 'body > div:nth-child(15) > div > div > div.isgrP > ul > div > li > div > div.t2ksc > div.enpQJ > div.d7ByH > a';
 
-  await page.waitForSelector('body > div:nth-child(15) > div > div > div.isgrP > ul > div > li > div > div.t2ksc > div.enpQJ > div.d7ByH > a');
+  let infinityScrolling = -1;
+  let profilesFollowed = [];
+  let retry = 3;
+  while (infinityScrolling !== profilesFollowed.length || retry > 0) {
+    infinityScrolling = profilesFollowed.length;
+    await wait(1);
+    await page.evaluate(scrollDown, 'body > div:nth-child(15) > div > div > div.isgrP');
+    await page.waitForSelector(profilesSelector);
+    profilesFollowed = await page.$$eval(profilesSelector, links => links.map(a => a.title));
+    console.log({ infinityScrolling });
 
-  const profilesFollowed = await page.$$eval('body > div:nth-child(15) > div > div > div.isgrP > ul > div > li > div > div.t2ksc > div.enpQJ > div.d7ByH > a',
-    a => a.map((_) => {
-      console.log(_);
-      return _.title;
-    }));
-  console.log(profilesFollowed);
-
+    if (infinityScrolling === profilesFollowed.length) {
+      retry--;
+    }
+  }
 
   await browser.close();
+  return profilesFollowed;
 }
 
 
-followed('xxx', 'xxx')
+followed('xxx', 'yyy', 'zzz')
+  .then(profiles => console.log(profiles.length))
   .catch(console.error);
 
 module.exports = followed;
