@@ -18,7 +18,7 @@ async function followed(user, password, searchUser = user) {
   // if (lazyBrowser === undefined) {
   lazyBrowser = await puppeteer.launch({
     headless: true,
-    args: ['--disable-gpu', '--no-sandbox', '--window-size=1024x768'],
+    args: ['--disable-gpu', '--no-sandbox', '--disable-setuid-sandbox'],
     defaultViewport: { width: 1024, height: 768 },
   });
 
