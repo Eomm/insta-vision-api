@@ -61,24 +61,32 @@ async function followed(user, password, searchUser = user) {
     scrollableSection.scrollTop = scrollableSection.scrollHeight;
   };
 
+  const popupSelector = 'body > div:nth-child(15) > div > div > div.isgrP';
   const profilesSelector = 'body > div:nth-child(15) > div > div > div.isgrP > ul > div > li > div > div.t2ksc > div.enpQJ > div.d7ByH > a';
 
   let infinityScrolling = -1;
   let profilesFollowed = [];
   let retry = 3;
-  while (infinityScrolling !== profilesFollowed.length || retry > 0) {
-    infinityScrolling = profilesFollowed.length;
-    await wait(1);
-    await page.evaluate(scrollDown, 'body > div:nth-child(15) > div > div > div.isgrP');
-    await page.waitForSelector(profilesSelector);
-    profilesFollowed = await page.$$eval(profilesSelector, links => links.map(a => a.title));
-    console.log('Scrolling...', infinityScrolling);
+  try {
+    while (infinityScrolling !== profilesFollowed.length || retry > 0) {
+      infinityScrolling = profilesFollowed.length;
+      await wait(1);
+      await page.waitForSelector(popupSelector);
+      await page.evaluate(scrollDown, popupSelector);
+      await page.waitForSelector(profilesSelector);
+      profilesFollowed = await page.$$eval(profilesSelector, links => links.map(a => a.title));
+      console.log('Scrolling...', infinityScrolling);
 
-    if (infinityScrolling === profilesFollowed.length) {
-      retry -= 1;
+      if (infinityScrolling === profilesFollowed.length) {
+        retry -= 1;
+      }
     }
+  } catch (err) {
+    console.error(err);
+    console.error('page content', await page.content());
   }
   page.close();
+  lazyBrowser.close();
 
   return profilesFollowed;
 }
