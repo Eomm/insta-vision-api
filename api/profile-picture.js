@@ -3,12 +3,15 @@
 const ipp = require('instagram-profile-picture');
 
 async function profilePicture(fastify, options) {
-  fastify.get('/profile-picture', async (request, reply) => {
-    ipp('9gag').then((user) => {
-      console.log(user);
-      reply.send(user);
-      // => https://scontent-sit4-1.cdninstagram.com/7...jpg
-    }).catch(err => reply.send(err));
+  fastify.get('/profile-picture/:profile', async (request, reply) => {
+    try {
+      const { profile } = request.params;
+      const url = await ipp(profile);
+      console.log(`Found ${profile} image URL: ${url}`);
+      reply.send(url);
+    } catch (error) {
+      reply.send(error);
+    }
   });
 }
 
