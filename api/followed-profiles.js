@@ -1,99 +1,23 @@
 'use strict';
 
-const puppeteer = require('puppeteer');
+const InstagramNavigator = require('./utils/InstagramNavigator')
 
 const instagram = {
   user: process.env.INSTAGRAM_USER,
   password: process.env.INSTAGRAM_PASSWORD,
 };
 
-let lazyBrowser;
-
-function wait(sec) {
-  return new Promise(resolve => setTimeout(resolve, sec * 1000));
-}
-
 async function followed(user, password, searchUser = user) {
-  let page;
-  // if (lazyBrowser === undefined) {
-  lazyBrowser = await puppeteer.launch({
-    headless: true,
-    args: ['--disable-gpu', '--no-sandbox', '--disable-setuid-sandbox'],
-    defaultViewport: { width: 1024, height: 768 },
-  });
+  const navigate = new InstagramNavigator()
+  await navigate.openBrowser(false)
+  await navigate.openPage()
+  await navigate.login(user, password)
 
-  page = await lazyBrowser.newPage();
-  const userAgent = await lazyBrowser.userAgent();
-  page.setUserAgent(userAgent.replace('Headless', ''));
+  // Test!
+  await navigate.readStories(searchUser);
 
-  await page.goto('https://www.instagram.com/accounts/login/');
-  await page.waitForSelector('input[name=\'username\']');
-  await page.type('input[name=\'username\']', user, { delay: 100 });
-
-  await page.waitForSelector('input[name=\'password\']');
-  await page.type('input[name=\'password\']', password, { delay: 100 });
-  await page.waitForSelector('form > div:nth-child(3) > button');
-  const btnLogin = await page.$('form > div:nth-child(3) > button');
-  await btnLogin.click();
-  console.log('Logging...');
-  // } else {
-  //   page = await lazyBrowser.newPage();
-  // }
-
-
-  // const html = await page.content();
-  // const cookies = await page.cookies();
-  // console.log('html', html);
-  // console.log('cookies', cookies);
-
-  await wait(1);
-  await page.goto(`https://www.instagram.com/${searchUser}/`);
-  await wait(4);
-  await page.waitForSelector('main > div > header > section > ul > li:nth-child(3) > a');
-  const openFollowed = await page.$('main > div > header > section > ul > li:nth-child(3) > a');
-  await openFollowed.click();
-  console.log('Opening followed...');
-
-  await wait(5);
-  const scrollDown = (selector) => {
-    const scrollableSection = document.querySelector(selector);
-    // TODO if scrollableSection is null
-    scrollableSection.scrollTop = scrollableSection.scrollHeight;
-  };
-
-  const popupSelector = 'body > div:nth-child(15) > div > div > div.isgrP';
-  const profilesSelector = 'body > div:nth-child(15) > div > div > div.isgrP > ul > div > li > div > div.t2ksc > div.enpQJ > div.d7ByH > a';
-
-  let infinityScrolling = -1;
-  let profilesFollowed = [];
-  let retry = 3;
-  try {
-    while (infinityScrolling !== profilesFollowed.length || retry > 0) {
-      infinityScrolling = profilesFollowed.length;
-      await wait(1);
-      await page.waitForSelector(popupSelector);
-      await page.evaluate(scrollDown, popupSelector);
-      await page.waitForSelector(profilesSelector);
-      profilesFollowed = await page.$$eval(profilesSelector, links => links.map(a => a.title));
-      console.log('Scrolling...', infinityScrolling);
-
-      if (infinityScrolling === profilesFollowed.length) {
-        retry -= 1;
-      }
-    }
-  } catch (err) {
-    console.error(err);
-    console.error('page content', await page.content());
-  }
-  page.close();
-  lazyBrowser.close();
-
-  return profilesFollowed;
+  return navigate.readFollowedProfiles(searchUser)
 }
-
-// followed('xxx', 'yyy', 'zzz')
-//   .then(profiles => console.log(profiles.length))
-//   .catch(console.error);
 
 async function followedProfiles(fastify, options) {
   fastify.get('/followed-profiles/:profile', async (request, reply) => {
