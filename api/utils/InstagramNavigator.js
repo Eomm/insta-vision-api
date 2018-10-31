@@ -16,12 +16,13 @@ class InstagramNavigator {
     this.browser = await puppeteer.launch({
       headless,
       args: ['--disable-gpu', '--no-sandbox', '--disable-setuid-sandbox', ...args],
-      defaultViewport: { width: 1024, height: 768 },
+      defaultViewport: { width: 768, height: 1024 },
     });
   }
 
   async openPage() {
     this.page = await this.browser.newPage();
+    this.page.setDefaultNavigationTimeout(60000);
     const userAgent = await this.browser.userAgent();
     this.page.setUserAgent(userAgent.replace('Headless', ''));
   }
@@ -89,7 +90,19 @@ class InstagramNavigator {
     await wait(1);
     await this.page.goto(`https://www.instagram.com/stories/${searchUser}/`);
     await wait(2);
-    await this.page.screenshot({ path: `stories-${searchUser}.png` });
+
+    const storiesNum = await this.page.evaluate(() => {
+      return document.getElementsByClassName('-Nmqg').length;
+    })
+
+    console.log(`There are ${storiesNum} for ${searchUser}`);
+
+    for (let i = 0; i < storiesNum; i++) {
+      console.log('screnshotting', i);
+      await wait(2);
+      await this.page.screenshot({ path: `stories-${searchUser}-${i}.png` });
+      await this.page.click('#react-root > section > div > div > section > div.GHEPc > button.ow3u_ > div');
+    }
   }
 
   close() {
