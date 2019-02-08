@@ -11,7 +11,8 @@
     "deploy": "serverless deploy -v",
     "deploy-function": "serverless deploy function -f profileUrl",
     "coverage": "npm test && npm run coveralls",
-    "config-credentials": "serverless config credentials --provider aws --key yyy --secret xxx"
+    "config-credentials": "serverless config credentials --provider aws --key yyy --secret xxx",
+    "serverless-setup": "serverless plugin install --name serverless-plugin-browserify"
   },
   "keywords": [
     "insta",
